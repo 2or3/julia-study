@@ -106,6 +106,28 @@ function topmatches(prefs, person, n=5, similarity=simpearson)
   return scores[1:n]
 end
 
+function getecommendations(prefs, person, similarity=sim_pearson)
+    totals = {}
+    simSums = {}
+    for other in prefs
+        if other == persion
+            continue
+        end
+        sim=similarity(prefs, person, other)
+
+        if si <= 0
+            continue
+        end
+        for item in prefs[ohter]
+            if haskey(prefs[persion], item) || prefs[persion][item] == 0
+                haskey(totals, item) ? totals[item] += prefs[other][item]*sim : totals[item] = 0
+                haskey(simSums, item) ? simSums[item] += sim : totals[item] = 0
+            end
+        end
+    end
+    rankings = map((item, total) => total / sumSums[item], totals.items())
+end
+
 function transformprefs(prefs)
   result = {}
   for persion in prefs
