@@ -50,7 +50,7 @@ critics = {
   }
 }
 
-function sim_distance(prefs, persion1, persion2)
+function simdistance(prefs, persion1, persion2)
     si={}
     for x in prefs[persion1]
         if item in prefs[persion2]
@@ -61,11 +61,95 @@ function sim_distance(prefs, persion1, persion2)
     if length(si) == 0
         return 0
     end
-    sum_of_squares=sum((x1, x2) -> (x1-x2)^2, filter(x -> in(x, prefs[persion2]), prefs[persion1]))
+    sum_of_squares = sum(map(x => if haskey(prefs[persion2], x) (prefs[persion1][x] - prefs[persion2][x])^2, prefs[persion1]))
 
     1 / (1 + sum_of_squares)
 end
 
-function get_euclidean_distance(x1, x2)
-  sum((x1-x2)^2)
+function simpersion(prefs, p1, p2)
+  si = {}
+  for item in prefs[p1]
+    if !haskey(prefs[p1], item)
+      si[item] = 1
+    end
+  end
+
+  n = length(si)
+
+  if n == 0 return 0
+
+  sum1 = sum(map(it => pref[p1][it], si))
+  sum2 = sum(map(it => pref[p2][it], si))
+
+  sum1Sq = sum(map(it => pref[p1][it]^2, si))
+  sum2Sq = sum(map(it => pref[p2][it]^2, si))
+
+  pSum = sum(map(it => prefs[p1][it] * prefs[p2][it], si))
+
+  num = pSum - (sum1 * sum2 / n)
+  den = sqrt((sum1Sq - sum1^2 / n) * (sum2Sq - sum2^2 / n))
+  if den == 0 return 0
+
+  r = num / den
+  return r
+end
+
+function topmatches(prefs, person, n=5, similarity=simpearson)
+  for other in prefs
+    if other != persion
+      key = similarity(prefs, persion, other)
+      scores[key] = other
+    end
+  end 
+  
+  sort(scores, rev=true)
+  return scores[1:n]
+end
+
+function transformprefs(prefs)
+  result = {}
+  for persion in prefs
+    for item in prefs[persion]
+      if !haskey(result, item)
+        result[item] = {}
+      end
+    end
+  end
+
+  return result
+end
+
+function calculatesimilaritems(prefs, n=10)
+  result = {}
+  item_prefs = transformprefs(prefs)
+  c = 0
+  for item in item_prefs
+    c+=1
+    if c % 100 == 0
+      printf("%d / %d", c, len(itemPrefs))
+    end
+    scores = topmatches(item_prefs, item, n, simdistance)
+    result[item] = scores
+  end
+  return result
+end
+
+function loadmovielens(path="/data/movielens")
+  movies = {}
+  lines = open(path + "/u.item")
+  for line in readlines(lines)
+    (id, title) = line.split("|")[1:2]
+    movies[id] = title
+  end
+  
+  prefs = {}
+  data = open(path + "/u.data")
+  for line in data
+    (user, movieid, rating, ts) = line.split('\t')
+    if !haskey(prefs, user)
+      prefs[user] = {}
+    else
+      prefs[user][movies[movieid]] = float(rating)
+    end
+  end
 end
