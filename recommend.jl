@@ -128,6 +128,51 @@ function getecommendations(prefs, person, similarity=sim_pearson)
     rankings = map((item, total) => total / sumSums[item], totals.items())
 end
 
+function transformPrefs(prefs)
+  result = {}
+  for person in prefs
+    for item in prefs[person]
+      if !haskey(result, item)
+        result[item] = {}
+      end
+
+      result[item][person] = prefs[person][item]
+    end
+  end
+
+  return result
+end
+
+function initializeUserDict(tag,count=5)
+end
+
+function fillitems(user_dict)
+  all_items = {}
+  for user in user_dict
+    for i = 1:3
+      try
+        posts = get_userposts(user)
+        break
+      catch
+        println "Failed user "+user+", retrying"
+        sleep(4)
+      end
+    end
+    for post in posts
+      url = post["href"]
+      user_dict[user][url] = 1.0
+      all_items[url]=1
+  end
+
+  for ratings in user_dict.values()
+    for item in all_items
+      if !haskey(ratings, item)
+        ratings[item]=0.0
+      end
+    end
+  end
+end
+
 function transformprefs(prefs)
   result = {}
   for persion in prefs
