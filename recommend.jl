@@ -51,19 +51,19 @@ critics = {
 }
 
 function simdistance(prefs, persion1, persion2)
-    si={}
-    for x in prefs[persion1]
-        if item in prefs[persion2]
-            si[item]=1
-        end
+  si={}
+  for x in prefs[persion1]
+    if item in prefs[persion2]
+      si[item]=1
     end
+  end
 
-    if length(si) == 0
-        return 0
-    end
-    sum_of_squares = sum(map(x => if haskey(prefs[persion2], x) (prefs[persion1][x] - prefs[persion2][x])^2, prefs[persion1]))
+  if length(si) == 0
+    return 0
+  end
+  sum_of_squares = sum(map(x => if haskey(prefs[persion2], x) (prefs[persion1][x] - prefs[persion2][x])^2, prefs[persion1]))
 
-    1 / (1 + sum_of_squares)
+  return 1 / (1 + sum_of_squares)
 end
 
 function simpersion(prefs, p1, p2)
@@ -107,25 +107,25 @@ function topmatches(prefs, person, n=5, similarity=simpearson)
 end
 
 function getecommendations(prefs, person, similarity=sim_pearson)
-    totals = {}
-    simSums = {}
-    for other in prefs
-        if other == persion
-            continue
-        end
-        sim=similarity(prefs, person, other)
-
-        if si <= 0
-            continue
-        end
-        for item in prefs[ohter]
-            if haskey(prefs[persion], item) || prefs[persion][item] == 0
-                haskey(totals, item) ? totals[item] += prefs[other][item]*sim : totals[item] = 0
-                haskey(simSums, item) ? simSums[item] += sim : totals[item] = 0
-            end
-        end
+  totals = {}
+  simSums = {}
+  for other in prefs
+    if other == persion
+      continue
     end
-    rankings = map((item, total) => total / sumSums[item], totals.items())
+    sim=similarity(prefs, person, other)
+
+    if si <= 0
+      continue
+    end
+    for item in prefs[ohter]
+      if haskey(prefs[persion], item) || prefs[persion][item] == 0
+        haskey(totals, item) ? totals[item] += prefs[other][item]*sim : totals[item] = 0
+        haskey(simSums, item) ? simSums[item] += sim : totals[item] = 0
+      end
+    end
+  end
+  rankings = map((item, total) => total / sumSums[item], totals.items())
 end
 
 function transformPrefs(prefs)
@@ -143,7 +143,16 @@ function transformPrefs(prefs)
   return result
 end
 
-function initializeUserDict(tag,count=5)
+using pydelicious: get_popular, get_userposts, get_urlposts
+function initializeUserDict(tag, count=5)
+  user_dict = {}
+
+  for p1 in get_popular(tag)[1:count]
+    for p2 in get_urlposts(p1['href'])
+      user = p2['user']
+      user_dict[user] = {}
+    end
+  end
 end
 
 function fillitems(user_dict)
@@ -154,7 +163,7 @@ function fillitems(user_dict)
         posts = get_userposts(user)
         break
       catch
-        println "Failed user "+user+", retrying"
+        println "Failed user " + user + ", retrying"
         sleep(4)
       end
     end
