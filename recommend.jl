@@ -52,8 +52,8 @@ critics = {
 
 function simdistance(prefs, persion1, persion2)
   si={}
-  for x in prefs[persion1]
-    if item in prefs[persion2]
+  for item in prefs[persion1]
+    if haskey(prefs[persion2], item)
       si[item]=1
     end
   end
@@ -61,7 +61,7 @@ function simdistance(prefs, persion1, persion2)
   if length(si) == 0
     return 0
   end
-  sum_of_squares = sum(map(x => if haskey(prefs[persion2], x) (prefs[persion1][x] - prefs[persion2][x])^2, prefs[persion1]))
+  sum_of_squares = sum(map(x -> if haskey(prefs[persion2], x) (prefs[persion1][x] - prefs[persion2][x])^2, prefs[persion1]))
 
   return 1 / (1 + sum_of_squares)
 end
@@ -78,13 +78,13 @@ function simpersion(prefs, p1, p2)
 
   if n == 0 return 0
 
-  sum1 = sum(map(it => pref[p1][it], si))
-  sum2 = sum(map(it => pref[p2][it], si))
+  sum1 = sum(map(it -> pref[p1][it], si))
+  sum2 = sum(map(it -> pref[p2][it], si))
 
-  sum1Sq = sum(map(it => pref[p1][it]^2, si))
-  sum2Sq = sum(map(it => pref[p2][it]^2, si))
+  sum1Sq = sum(map(it -> pref[p1][it]^2, si))
+  sum2Sq = sum(map(it -> pref[p2][it]^2, si))
 
-  pSum = sum(map(it => prefs[p1][it] * prefs[p2][it], si))
+  pSum = sum(map(it -> prefs[p1][it] * prefs[p2][it], si))
 
   num = pSum - (sum1 * sum2 / n)
   den = sqrt((sum1Sq - sum1^2 / n) * (sum2Sq - sum2^2 / n))
@@ -125,7 +125,7 @@ function getecommendations(prefs, person, similarity=sim_pearson)
       end
     end
   end
-  rankings = map((item, total) => total / sumSums[item], totals.items())
+  rankings = map((item, total) -> total / sumSums[item], totals.items())
 end
 
 function transformPrefs(prefs)
