@@ -25,6 +25,9 @@ end
 function getwords(html)
   txt = replace(html, r"<[^>]+>", "")
   words = split(txt, r"[^A-Z^a-z]+", "")
+
+  res = sum(map(word -> if word != "" lower(word) end,  words))
+  return res
 end
 
 function readfile(filename)
@@ -33,4 +36,15 @@ function readfile(filename)
     for line in readlines(stream)
         push!(lines, line)
     end
+
+    colnames = split(strip(line[1]), "\t")[2:]
+    rownames = {}
+    data = {}
+    for line in lines[2:]
+        p = split(strip(line), "\t")
+        pop!(rownames, p[1])
+        sum = sum(map(x -> float(x), p[2:]))
+        pop!(data, sum)
+    end
+    return rownames, colnames, data
 end
