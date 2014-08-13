@@ -48,3 +48,45 @@ function readfile(filename)
     end
     return rownames, colnames, data
 end
+
+function kcluster(rows, distance = persion, k = 2)
+    ranges = [(minimum([row[i] for row in rows]), maximum([row[i] for row in rows])) for i in [1:length(rows[1])]]
+
+    clusters = [[rand() * (ranges[i][2] - ranges[i][1]) + ranges[i][1] for i in [1:length(rows[1])]] for j in [1:k]]
+
+    lastmatches=None
+    for t=1:100
+        @printf("Iteration %d \n", t)
+        bestmatches = [[] for i in [1:k]]
+
+        for j=1:length(rows)
+            row = rows[j]
+            bestmatch = 0
+            for i=1:k
+                d = distance(clusters[i], row)
+                if d < distance(clusters[bestmatch], row) bestmatch = i end
+            end
+            bestmatches[bestmatch] = [bestmatches[bestmatch], j]
+        end
+
+        if bestmatches == lastmatches break end
+        lastmatches = bestmatches
+    end
+
+    for i=1:k
+        avgs = [[0.0] for j in 1:length(rows[1])]
+        if length(bestmatches[i]) > 0
+            for rowid in bestmatches[i]
+                for m in [1:rows[rowid]]
+                    avgs[m] += rows[rowid][m]
+                end
+            end
+            for j in [1:length(avgs)]
+                avgs[j] /= length(bestmatches[i])
+            end
+            clusters[i] = avgs
+        end
+    end
+
+    return bestmatches
+end
